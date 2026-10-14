@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# generated data (re-create with: python -m src.data.prepare_data)
+data/processed/
+data/real/
+
+# analysis runs (the demo run is kept so the GUI has something to show)
+outputs/runs/*
+!outputs/runs/demo/
+outputs/monitor_state.json
+outputs/alerts.jsonl

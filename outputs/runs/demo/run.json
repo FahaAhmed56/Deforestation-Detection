@@ -1,0 +1,161 @@
+{
+  "id": "demo",
+  "name": "Demo \u00b7 Rond\u00f4nia-style forest frontier (synthetic)",
+  "source": "demo",
+  "bbox": [
+    -63.12334794450635,
+    -9.973151916363701,
+    -63.07665205549365,
+    -9.926848083636298
+  ],
+  "bounds": [
+    [
+      -9.973151916363701,
+      -63.12334794450635
+    ],
+    [
+      -9.926848083636298,
+      -63.07665205549365
+    ]
+  ],
+  "shape": [
+    512,
+    512
+  ],
+  "pixel_area_m2": 100.0,
+  "created": "2026-10-13T16:47:33+00:00",
+  "model": {
+    "epoch": 12,
+    "val": {
+      "accuracy": 0.9974525480736349,
+      "precision": 0.9963769177791123,
+      "recall": 0.9976158425429051,
+      "f1": 0.996995994771304,
+      "iou": 0.994009984577263,
+      "loss": 0.007893787384033204
+    },
+    "path": "/home/claude/deforestation-detection/models/unet_forest.pt"
+  },
+  "params": {
+    "forest_threshold": 0.5,
+    "ndvi_drop": 0.15,
+    "min_area_ha": 0.1,
+    "open_radius": 0
+  },
+  "scenes": [
+    {
+      "date": "2023-07-15",
+      "rgb": "2023-07-15_rgb.png",
+      "forest": "2023-07-15_forest.png",
+      "forest_ha": 1988.2,
+      "forest_ha_observed": 1988.2,
+      "forest_pct": 75.8,
+      "mean_ndvi": 0.637,
+      "scene_id": "SYNTHETIC_2023-07-15",
+      "acquired": "2023-07-15",
+      "aoi_invalid_pct": 0.0
+    },
+    {
+      "date": "2024-07-12",
+      "rgb": "2024-07-12_rgb.png",
+      "forest": "2024-07-12_forest.png",
+      "forest_ha": 1891.7,
+      "forest_ha_observed": 1612.6,
+      "forest_pct": 72.2,
+      "mean_ndvi": 0.646,
+      "scene_id": "SYNTHETIC_2024-07-12",
+      "acquired": "2024-07-12",
+      "aoi_invalid_pct": 14.8
+    },
+    {
+      "date": "2025-07-17",
+      "rgb": "2025-07-17_rgb.png",
+      "forest": "2025-07-17_forest.png",
+      "forest_ha": 1854.0,
+      "forest_ha_observed": 1854.0,
+      "forest_pct": 70.7,
+      "mean_ndvi": 0.643,
+      "scene_id": "SYNTHETIC_2025-07-17",
+      "acquired": "2025-07-17",
+      "aoi_invalid_pct": 0.0
+    },
+    {
+      "date": "2026-07-14",
+      "rgb": "2026-07-14_rgb.png",
+      "forest": "2026-07-14_forest.png",
+      "forest_ha": 1771.6,
+      "forest_ha_observed": 1615.4,
+      "forest_pct": 67.6,
+      "mean_ndvi": 0.66,
+      "scene_id": "SYNTHETIC_2026-07-14",
+      "acquired": "2026-07-14",
+      "aoi_invalid_pct": 8.8
+    }
+  ],
+  "changes": [
+    {
+      "from": "2023-07-15",
+      "to": "2024-07-12",
+      "loss": "2023-07-15_2024-07-12_loss.png",
+      "gain": "2023-07-15_2024-07-12_gain.png",
+      "geojson": "2023-07-15_2024-07-12_changes.geojson",
+      "loss_ha": 72.12,
+      "gain_ha": 0.0,
+      "loss_patches": 18,
+      "largest_patch_ha": 28.94,
+      "loss_pct_of_forest": 4.28,
+      "summary": "summary_2023-07-15_2024-07-12.png",
+      "accuracy_vs_truth": {
+        "precision": 0.9986,
+        "recall": 0.997,
+        "f1": 0.9978,
+        "iou": 0.9956
+      }
+    },
+    {
+      "from": "2024-07-12",
+      "to": "2025-07-17",
+      "loss": "2024-07-12_2025-07-17_loss.png",
+      "gain": "2024-07-12_2025-07-17_gain.png",
+      "geojson": "2024-07-12_2025-07-17_changes.geojson",
+      "loss_ha": 43.27,
+      "gain_ha": 0.0,
+      "loss_patches": 24,
+      "largest_patch_ha": 15.0,
+      "loss_pct_of_forest": 2.68,
+      "summary": "summary_2024-07-12_2025-07-17.png",
+      "accuracy_vs_truth": {
+        "precision": 0.9988,
+        "recall": 0.9843,
+        "f1": 0.9915,
+        "iou": 0.9832
+      }
+    },
+    {
+      "from": "2025-07-17",
+      "to": "2026-07-14",
+      "loss": "2025-07-17_2026-07-14_loss.png",
+      "gain": "2025-07-17_2026-07-14_gain.png",
+      "geojson": "2025-07-17_2026-07-14_changes.geojson",
+      "loss_ha": 64.84,
+      "gain_ha": 0.0,
+      "loss_patches": 17,
+      "largest_patch_ha": 22.85,
+      "loss_pct_of_forest": 3.86,
+      "summary": "summary_2025-07-17_2026-07-14.png",
+      "accuracy_vs_truth": {
+        "precision": 0.9954,
+        "recall": 0.9893,
+        "f1": 0.9923,
+        "iou": 0.9847
+      }
+    }
+  ],
+  "totals": {
+    "loss_ha": 180.23,
+    "gain_ha": 0.0,
+    "forest_start_ha": 1988.2,
+    "forest_end_ha": 1771.6
+  },
+  "timeline": "timeline.png"
+}

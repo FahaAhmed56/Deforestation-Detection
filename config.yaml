@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------
+# ForestWatch — central configuration
+# Every script reads this file, so change values here, not in code.
+# ---------------------------------------------------------------
+
+# Sentinel-2 bands used as model input (10 m + 20 m bands).
+#   B02 blue, B03 green, B04 red, B08 near-infrared,
+#   B11 / B12 short-wave infrared (sensitive to bare soil & moisture)
+bands: [B02, B03, B04, B08, B11, B12]
+
+paths:
+  data_dir: data
+  models_dir: models
+  runs_dir: outputs/runs
+  images_dir: docs/images
+
+dataset:
+  tile_size: 128          # pixels per training tile (128 px * 10 m = 1.28 km)
+  n_train: 1400
+  n_val: 250
+  n_test: 250
+  seed: 42
+
+model:
+  base_channels: 16       # width of the first U-Net level (doubles each level)
+  depth: 4                # number of down-sampling steps
+  dropout: 0.1
+
+train:
+  epochs: 14
+  batch_size: 16
+  lr: 0.002
+  weight_decay: 0.0001
+  num_workers: 0
+
+inference:
+  tile_size: 128
+  overlap: 32             # overlapping windows are blended to avoid seams
+
+change:
+  forest_threshold: 0.5   # probability above which a pixel counts as forest
+  ndvi_drop: 0.15         # a "loss" pixel must also lose this much NDVI
+  min_area_ha: 0.1        # ignore clearings smaller than this (noise)
+  open_radius: 0          # morphological opening radius (px). 0 keeps 20 m-wide new
+                          # logging roads, which are an early sign of deforestation;
+                          # set 1 to suppress thin features on noisy real imagery
+
+sentinel:
+  stac_url: https://planetarycomputer.microsoft.com/api/stac/v1
+  collection: sentinel-2-l2a
+  max_cloud: 20           # % scene cloud cover allowed in the search
+  search_window_days: 45  # look this many days either side of a requested date
+  resolution_m: 10
+  max_pixels: 1500        # safety cap per side for an AOI download
+
+server:
+  host: 0.0.0.0
+  port: 8000

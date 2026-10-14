@@ -1,0 +1,11 @@
+# Areas checked by `python -m src.monitor`.
+# bbox = [west, south, east, north] in degrees (draw one in the GUI and copy it).
+areas:
+  - name: Rondonia frontier
+    bbox: [-63.20, -10.00, -63.06, -9.88]
+    baseline_date: "2025-07-15"
+    alert_ha: 5
+  - name: Para BR-163
+    bbox: [-55.10, -6.60, -54.96, -6.48]
+    baseline_date: "2025-08-01"
+    alert_ha: 5

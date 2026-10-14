@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ForestWatch · Deforestation Detection</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 3 6 18h6l-4 7h16l-4-7h6z' fill='%233fb950'/><rect x='14.5' y='25' width='3' height='4' fill='%233fb950'/></svg>">
+  <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/static/vendor/leaflet-draw/leaflet.draw.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 3 6 18h6l-4 7h16l-4-7h6z" fill="currentColor"/><rect x="14.5" y="25" width="3" height="4" fill="currentColor"/></svg>
+    <div>
+      <h1>ForestWatch</h1>
+      <p>Sentinel-2 · U-Net forest segmentation · change detection</p>
+    </div>
+  </div>
+  <div class="status" id="modelStatus"><span class="dot"></span> checking model…</div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <nav class="tabs">
+      <button class="tab active" data-tab="runs">Analyses</button>
+      <button class="tab" data-tab="new">New analysis</button>
+      <button class="tab" data-tab="model">Model</button>
+    </nav>
+
+    <!-- ===================== ANALYSES ===================== -->
+    <section class="panel active" id="tab-runs">
+      <label class="field">
+        <span>Analysis</span>
+        <select id="runSelect"></select>
+      </label>
+      <div id="runEmpty" class="empty hidden">
+        No analyses yet. Open <b>New analysis</b> and run the demo, or draw an area on the map.
+      </div>
+
+      <div id="runBody" class="hidden">
+        <div class="meta" id="runMeta"></div>
+
+        <div class="stats">
+          <div class="stat"><span>Forest (first date)</span><b id="sForestStart">–</b></div>
+          <div class="stat"><span>Forest (last date)</span><b id="sForestEnd">–</b></div>
+          <div class="stat loss"><span>Total cleared</span><b id="sLoss">–</b></div>
+          <div class="stat gain"><span>Regrowth</span><b id="sGain">–</b></div>
+        </div>
+
+        <h3>Compare dates</h3>
+        <label class="field"><span>Interval</span><select id="intervalSelect"></select></label>
+        <div class="interval-stats" id="intervalStats"></div>
+
+        <h3>Layers</h3>
+        <div class="layers">
+          <label><input type="checkbox" id="lyBefore"> True colour — before</label>
+          <label><input type="checkbox" id="lyAfter" checked> True colour — after</label>
+          <label><input type="checkbox" id="lyForest"> Forest map (U-Net, after)</label>
+          <label><input type="checkbox" id="lyLoss" checked> <i class="sw loss"></i> Forest loss</label>
+          <label><input type="checkbox" id="lyGain"> <i class="sw gain"></i> Regrowth</label>
+          <label><input type="checkbox" id="lyPoly" checked> Cleared-area outlines</label>
+          <label><input type="checkbox" id="lySwipe"> Swipe compare before | after</label>
+        </div>
+        <label class="field"><span>Overlay opacity <em id="opVal">100%</em></span>
+          <input type="range" id="opacity" min="0" max="100" value="100">
+        </label>
+
+        <h3>Forest cover over time</h3>
+        <div id="chart" class="chart"></div>
+
+        <h3>Largest clearings <small id="patchCount"></small></h3>
+        <table class="patches"><thead><tr><th>#</th><th>Area</th><th>Conf.</th><th>Location</th></tr></thead>
+          <tbody id="patchRows"></tbody></table>
+
+        <div id="truthBox" class="truth hidden"></div>
+
+        <div class="actions">
+          <a class="btn" id="dlGeojson" download>Download GeoJSON</a>
+          <a class="btn ghost" id="dlSummary" target="_blank">Before/after figure</a>
+          <button class="btn danger ghost" id="delRun">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== NEW ANALYSIS ===================== -->
+    <section class="panel" id="tab-new">
+      <div class="seg">
+        <label><input type="radio" name="src" value="sentinel" checked> Real Sentinel-2</label>
+        <label><input type="radio" name="src" value="demo"> Offline demo</label>
+      </div>
+
+      <div id="sentinelForm">
+        <p class="hint">1. Draw a rectangle on the map (max ≈ 15 × 15 km).<br>2. Pick two or more dates — dry-season dates have fewer clouds.<br>3. Run. Imagery streams from the free Microsoft Planetary Computer catalogue.</p>
+        <button class="btn" id="drawBtn">▭ Draw area on map</button>
+        <div class="bbox" id="bboxText">No area selected</div>
+        <label class="field"><span>Name</span><input id="runName" value="My area"></label>
+        <div id="dateList"></div>
+        <button class="btn ghost small" id="addDate">+ add date</button>
+        <div class="presets">
+          <span>Try:</span>
+          <button class="chip" data-preset="rondonia">Rondônia, Brazil</button>
+          <button class="chip" data-preset="para">Pará BR-163</button>
+          <button class="chip" data-preset="borneo">Kalimantan</button>
+        </div>
+      </div>
+      <div id="demoForm" class="hidden">
+        <p class="hint">Runs the full pipeline on a synthetic, Rondônia-style forest frontier with four yearly dates, roads, clouds and new clearings. No internet needed — and because the scene is synthetic, the true deforestation is known, so the result is scored against it.</p>
+      </div>
+
+      <button class="btn primary wide" id="runBtn">Run analysis</button>
+      <pre class="console hidden" id="console"></pre>
+    </section>
+
+    <!-- ===================== MODEL ===================== -->
+    <section class="panel" id="tab-model">
+      <div class="stats" id="modelStats"></div>
+      <h3>Validation IoU per epoch</h3>
+      <div id="iouChart" class="chart"></div>
+      <h3>Training figures</h3>
+      <div class="figs">
+        <a href="/figures/training_curves.png" target="_blank"><img src="/figures/training_curves.png" alt="training curves" loading="lazy"></a>
+        <a href="/figures/sample_predictions.png" target="_blank"><img src="/figures/sample_predictions.png" alt="sample predictions" loading="lazy"></a>
+        <a href="/figures/confusion_matrix.png" target="_blank"><img src="/figures/confusion_matrix.png" alt="confusion matrix" loading="lazy"></a>
+      </div>
+    </section>
+  </aside>
+
+  <section class="mapwrap">
+    <div id="map"></div>
+    <div class="swipe hidden" id="swipe"><div class="handle"><span>◀ ▶</span></div></div>
+    <div class="legend">
+      <div><i class="sw loss"></i> forest loss</div>
+      <div><i class="sw gain"></i> regrowth</div>
+      <div><i class="sw forest"></i> forest (U-Net)</div>
+    </div>
+    <div class="datebadge hidden" id="dateBadge"></div>
+  </section>
+</main>
+
+<script src="/static/vendor/leaflet/leaflet.js"></script>
+<script src="/static/vendor/leaflet-draw/leaflet.draw.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
